@@ -1,0 +1,133 @@
+import React, { Component } from 'react';
+import { EditorState , convertFromHTML,ContentState ,convertToRaw,convertFromRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import  PropTypes from 'prop-types';
+
+
+
+export class EditForDraftWysiwyg extends Component {
+
+
+    constructor(props) {
+        super(props);
+
+
+        this.state = {
+            editorState: EditorState.createEmpty()
+        };
+    }
+
+    componentDidMount(){
+        /*
+        Promise.resolve().then( ()=>{
+            if (this.props.initRowText){
+                const editorContent = convertFromRaw(JSON.parse(this.props.initRowText));
+                this.setState({editorState: EditorState.createWithContent(editorContent)});
+
+            }else{
+                const contentBlocks = convertFromHTML('#입력해주세요#');
+                const editorContent = ContentState.createFromBlockArray(contentBlocks);
+                this.setState({editorState: EditorState.createWithContent(editorContent)});
+            }
+        });
+*/
+
+        if (this.props.initRowText){
+            const editorContent = convertFromRaw(JSON.parse(this.props.initRowText));
+            this.setState({editorState: EditorState.createWithContent(editorContent)});
+
+        }else{
+            const contentBlocks = convertFromHTML('#입력해주세요#');
+            const editorContent = ContentState.createFromBlockArray(contentBlocks);
+            this.setState({editorState: EditorState.createWithContent(editorContent)});
+        }
+
+
+    }
+
+    onEditorStateChange = (editorState) => {
+        this.setState({
+            editorState,
+        });
+
+        const contentState = this.state.editorState.getCurrentContent();
+        const contentRaw = convertToRaw(contentState);
+        console.log(contentRaw);
+        this.props.onEditorStateChange(JSON.stringify(contentRaw));
+    };
+
+    onFocusEditer = () => {
+        const plainText =this.state.editorState.getCurrentContent().getPlainText();
+        if (plainText === '#입력해주세요#') {
+            this.setState({
+                editorState : EditorState.createEmpty()
+            });
+        }
+
+    }
+
+    render() {
+
+
+
+     /*
+     if (this.props.initRowText){
+            const editorContent = convertFromRaw(JSON.parse(this.props.initRowText));
+            this.setState({editorState: EditorState.createWithContent(editorContent)});
+
+
+        }else{
+            const contentBlocks = convertFromHTML('#입력해주세요#');
+            const editorContent = ContentState.createFromBlockArray(contentBlocks);
+            this.setState({editorState: EditorState.createWithContent(editorContent)});
+
+        }
+
+*/
+
+        const { editorState } = this.state;
+
+
+        return (
+            <Editor
+                wrapperClassName="demo-wrapper"
+                editorClassName="demo-editor"
+                editorState={editorState}
+                onEditorStateChange={this.onEditorStateChange}
+                onFocus={this.onFocusEditer}
+                localization={{locale: 'ko',}}
+                toolbar={{
+                    options: ['inline', 'blockType', 'fontSize', 'fontFamily'],
+                    inline: {
+                        options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
+                        bold: { className: 'bordered-option-classname' },
+                        italic: { className: 'bordered-option-classname' },
+                        underline: { className: 'bordered-option-classname' },
+                        strikethrough: { className: 'bordered-option-classname' },
+                        code: { className: 'bordered-option-classname' },
+                    },
+                    blockType: {
+                        className: 'bordered-option-classname',
+                    },
+                    fontSize: {
+                        className: 'bordered-option-classname',
+                    },
+                    fontFamily: {
+                        className: 'bordered-option-classname',
+                    },
+                }}
+            />
+        )
+    }
+}
+
+
+
+EditForDraftWysiwyg.propTypes = {
+    onEditorStateChange : PropTypes.func.isRequired,
+};
+
+EditForDraftWysiwyg.defaultProps ={
+    initRowText : null,
+}

@@ -1,0 +1,20 @@
+
+.SnsStyle {
+    vertical-align: top;
+    display: inline-block;
+    margin-right: 30px;
+    text-align: center;
+}
+
+.SnsStyle_count {
+    margin-top: 3px;
+    font-size: 12px;
+}
+
+.SnsStyle_button  {
+    cursor: pointer;
+}
+
+.SnsStyle_button :hover:not(:active) {
+    opacity: 0.75;
+}
