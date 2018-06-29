@@ -1,6 +1,6 @@
 import React from 'react';
 import IconButton from '@material-ui/core/IconButton';
-import Menu, { MenuItem } from '@material-ui/core/Menu';
+import {Menu,MenuItem } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 class MoreVertMenu extends React.Component {
@@ -49,7 +49,7 @@ class MoreVertMenu extends React.Component {
                     onClose={this.onMenuClose}
                     PaperProps={{
                         style: {
-                            maxHeight: {itemHeight} * 4.5,
+                            // maxHeight: {itemHeight} * 4.5,
                             width: {width},
                         },
                     }}

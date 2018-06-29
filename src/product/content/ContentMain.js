@@ -23,9 +23,6 @@ class ContentMain extends React.Component {
                 };
 
 
-    // http://localhost:3000/ContentMain?eventContentNo=85
-    //http://localhost:3000/RegistryPlan?latLng={%22lat%22:37.502247016086216,%22lng%22:127.02950427514645}
-
     componentDidMount(){
         const cookies = new Cookies();
         this.setState({webCertInfo : getWebCertInfoCookie()});

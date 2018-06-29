@@ -16,7 +16,7 @@ class ContentCommentList extends React.Component {
     }
     onCommentDelRequested = (comment) =>{
 
-        axios.patch(Config.API_URL + 'Content/V1/deleteContentComment/'+  comment.contentCommentNo
+        axios.patch(Config.API_URL + '/Content/V1/deleteContentComment/'+  comment.contentCommentNo
             ,{}
             , {withCredentials: true, headers: {'Content-Type': 'application/json'}}
         )
@@ -29,7 +29,7 @@ class ContentCommentList extends React.Component {
             contentCommentNo: comment.contentCommentNo,
             commentDesc: comment.commentDesc,
         }
-        axios.patch(Config.API_URL + 'Content/V1/updateContentComment'
+        axios.patch(Config.API_URL + '/Content/V1/updateContentComment'
             ,jsonValue
             , {withCredentials: true, headers: {'Content-Type': 'application/json'}}
         )

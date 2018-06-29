@@ -4,6 +4,7 @@ import {Button, Icon} from "@material-ui/core";
 import propTypes from 'prop-types';
 import {withRouter} from "react-router-dom";
 import {getWebCertInfoCookie} from "../util/CommonUtils";
+import * as Config from "../util/Config";
 
 
 const styles = theme => ({
@@ -20,19 +21,6 @@ class LogInOutButton extends React.Component {
     constructor(props){
         super(props);
 
-      /*
-      axios.get('http://localhost:3000/sv/Auths/getAuthInfo')
-            .then(res =>{
-                try{
-                    this.setState({webCertInfo : res.data});
-                    if (this.state.webCertInfo !== ''){
-                        this.setState({loginStr : '로그아웃'});
-                    }
-                } catch (e){
-                    console.log(e);
-                }
-            }).catch(err => { console.log('>>>> :' + err); });
-*/
 
 
     }
@@ -62,16 +50,16 @@ class LogInOutButton extends React.Component {
     loginOutClick = () => {
         // 로그인 여부 확인 api call
          console.log('##loginOutClick');
-         const redirUrl = encodeURIComponent('http://localhost:3000');
+         const redirUrl = encodeURIComponent(Config.WEB_URL);
         console.log(redirUrl);
         if (this.isLogin())
         {
-             window.location.href = 'http://localhost:7070/sv/Auths/setLogout/'  + redirUrl;
+             window.location.href = Config.SERVICE_URL + '/sv/Auths/setLogout/'  + redirUrl;
         }
         else{
 
 
-            let locaiton = 'http://localhost:3000' + this.props.location.pathname;
+            let locaiton = Config.WEB_URL + this.props.location.pathname;
             if (this.props.location.search) locaiton += this.props.location.search;
 
 

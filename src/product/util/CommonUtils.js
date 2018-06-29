@@ -29,13 +29,6 @@ export const getWebCertInfoCookie = () =>{
 
 };
 
-// export const redirectLogin = (props) =>{
-//
-//     let locaiton = 'http://localhost:3000' + this.props.location.pathname;
-//     if (this.props.location.search) locaiton += this.props.location.search;
-//
-//     window.location.href = '/memberLogin?cb='+ encodeURIComponent(locaiton);
-// };
 
 
 

@@ -37,12 +37,12 @@ class MemberLogin extends React.Component {
 
         let oAuthUrl = '';
         if (authType === 'google'){
-            oAuthUrl = Config.NODE_URL + '/sv/oAuth/google?cb='+cb;
+            oAuthUrl = Config.SERVICE_URL + '/sv/oAuth/google?cb='+cb;
         }else if (authType === 'facebook'){
-            oAuthUrl = Config.NODE_URL + '/sv/oAuth/facebook?cb='+cb;
+            oAuthUrl = Config.SERVICE_URL + '/sv/oAuth/facebook?cb='+cb;
         }
         else {
-            oAuthUrl = Config.NODE_URL + '/sv/oAuth/naver?cb='+cb;
+            oAuthUrl = Config.SERVICE_URL + '/sv/oAuth/naver?cb='+cb;
         }
 
         console.log(oAuthUrl);

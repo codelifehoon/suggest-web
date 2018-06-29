@@ -101,7 +101,6 @@ class ContentReviewCard extends React.Component {
 
         // 등록 된 후에 삭제할때
         if (contentAlarmNo ) {
-
             axios.patch(Config.API_URL + '/Content/V1/updateContentAlarm/'+  contentAlarmNo +'/N'
                 ,{}
                 , {withCredentials: true, headers: {'Content-Type': 'application/json'}}
@@ -129,10 +128,15 @@ class ContentReviewCard extends React.Component {
 
         const  {contentThumbupNo,eventContentNo} = this.state;
 
+        //신규 알람 등록
+        const jsonValue = {
+            "eventContentNo": eventContentNo
+        };
+
         // 등록 된 후에 삭제할때
         if (contentThumbupNo ) {
 
-            axios.patch(Config.API_URL + '/Content/V1/UpdateContentThumbUp/'+  contentThumbupNo +'/N'
+            axios.patch(Config.API_URL + '/Content/V1/updateContentThumbUp/'+  contentThumbupNo +'/N'
                 ,{}
                 , {withCredentials: true, headers: {'Content-Type': 'application/json'}}
             )
@@ -140,12 +144,6 @@ class ContentReviewCard extends React.Component {
                 .catch(err => { console.error('>>>> :' + err); });
 
         }else{
-
-            //신규 알람 등록
-            const jsonValue = {
-                "eventContentNo": eventContentNo
-            };
-
             axios.post(Config.API_URL + '/Content/V1/addContentThumbUp'
                 , jsonValue
                 , {withCredentials: true, headers: {'Content-Type': 'application/json'}}
@@ -222,7 +220,9 @@ class ContentReviewCard extends React.Component {
             },
         };
 
-        const shortEventDesc=  eventDescText.substr(0,40);
+
+
+        const shortEventDesc=  eventDescText ? eventDescText.substr(0,40) : "";  //eventDescText null check
         const eventPeriod = this.getFormatDate(eventStart,eventEnd);
         const contentState = stateFromHTML(eventDesc);      // markdown으로 생각하고 state 구조를 가져오고
         let eventDescHtml =  stateToHTML(contentState,options);       // satet를 Html로 변경 (html 변경시 < 테그는  &lt;로 전환됨
@@ -242,7 +242,7 @@ class ContentReviewCard extends React.Component {
 
                 <Card className={classes.card}>
 
-                    <CardHeader
+                    <CardHeader style={{textAlign:'left'}}
                         avatar={
                             <Avatar aria-label="Recipe" className={classes.avatar} src={userPhotos}>{avatarText}</Avatar>
                         }
@@ -299,13 +299,13 @@ class ContentReviewCard extends React.Component {
                     </CardActions>
 
                     <Collapse in={expandedShare} timeout="auto" unmountOnExit>
-                        <SnaShareForKR pathname={'http://localhost:3000/contentMain?eventContentNo='+ eventContentNo}/>
+                        <SnaShareForKR pathname={ Config.WEB_URL +'/contentMain?eventContentNo='+ eventContentNo}/>
                     </Collapse>
 
 
                     <Collapse in={expandedDesc} timeout="auto" unmountOnExit>
 
-                        <CardContent style={{wordBreak:'break-all'}}>
+                        <CardContent style={{wordBreak:'break-all',textAlign:'left'}}>
                             {htmlReactParser(eventDescHtml)}
                         </CardContent>
                     </Collapse>

@@ -7,6 +7,7 @@ import {SearchBox} from 'react-google-maps/lib/components/places/SearchBox';
 import {Typography} from "@material-ui/core";
 import {withRouter} from "react-router-dom";
 import * as Config from '../util/Config';
+import * as util from "../util/CommonUtils";
 //
 //
 // const _ = require("lodash");
@@ -27,16 +28,18 @@ const MapWithASearchBox = compose(
         mapElement: <div style={{ height: '100%' }} />,
     }),
     lifecycle({
+
         componentWillMount() {
             const refs = {}
             let latDefault = 37.497889;
             let lngDefault = 127.027616;
+            let returnUrl = "";
 
             if (this.props.lat) latDefault=this.props.lat;
             if (this.props.lng) lngDefault=this.props.lng;
+            if (this.props.returnUrl) returnUrl=this.props.returnUrl;
 
-            console.log(this.props.lat);
-            console.log(this.props.lng);
+
 
 
             this.setState({

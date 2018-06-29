@@ -6,6 +6,9 @@ import htmlToDraft from 'html-to-draftjs';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import  PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
+import {stateToHTML} from "draft-js-export-html";
+import {stateFromHTML} from "draft-js-import-html";
 
 
 
@@ -22,44 +25,74 @@ export class EditForMarkdown extends Component {
     }
 
     componentDidMount(){
-        /*
-        Promise.resolve().then( ()=>{
-            if (this.props.initRowText){
-                const editorContent = convertFromRaw(JSON.parse(this.props.initRowText));
-                this.setState({editorState: EditorState.createWithContent(editorContent)});
 
-            }else{
-                const contentBlocks = convertFromHTML('#입력해주세요#');
-                const editorContent = ContentState.createFromBlockArray(contentBlocks);
-                this.setState({editorState: EditorState.createWithContent(editorContent)});
-            }
-        });
-*/
+        ReactDOM.findDOMNode(this).addEventListener('paste', this.eventHandle,false);
 
         if (this.props.initRowText){
 
-            // 수정전
-            // this.setState({editorState: EditorState.createWithContent(ContentState.createFromText(this.props.initRowText))});
-
-
-            // 수정후
-            // let htmlStr = this.props.initRowText;
-
-            const blocksFromHtml = htmlToDraft(this.props.initRowText);
-            // const { contentBlocks, entityMap } = blocksFromHtml;
-            const contentState = ContentState.createFromBlockArray(blocksFromHtml.contentBlocks, blocksFromHtml.entityMap);
-            this.setState({editorState: EditorState.createWithContent(contentState)});
-
-
-            // const contentBlocks = convertFromHTML(this.props.initRowText);
-            // const editorContent = ContentState.createFromBlockArray(contentBlocks);
-            // this.setState({editorState: EditorState.createWithContent(editorContent)});
+            this.setEditorState(this.props.initRowText);
 
         }else{
-            // const editorContent = convertFromRaw('#입력해주세요#');
+
             this.setState({editorState: EditorState.createWithContent(ContentState.createFromText('#입력해주세요#'))});
         }
+    }
 
+    setEditorState(doc) {
+        const blocksFromHtml = htmlToDraft(doc);
+        const contentState = ContentState.createFromBlockArray(blocksFromHtml.contentBlocks, blocksFromHtml.entityMap);
+        this.setState({editorState: EditorState.createWithContent(contentState)});
+    }
+
+    eventHandle = (e)=>{
+/*         e.preventDefault();
+        console.log('eventHandle:'+ e);
+        const clipboard = e.clipboardData || window.clipboardData;
+
+        if (clipboard){}
+        */
+
+        let clipboardData, pastedData;
+
+        // Stop data actually being pasted into div
+        e.stopPropagation();
+        e.preventDefault();
+
+        // Get pasted data via clipboard API
+        clipboardData = e.clipboardData || window.clipboardData;
+        // pastedData = clipboardData.getData('text/plain');
+        pastedData = clipboardData.getData('text/html');
+
+
+        // 이미지 변환시 최대 사이즈 조정을 위해서 style추가
+        let options = {
+            entityStyleFn: (entity) => {
+                const entityType = entity.get('type').toLowerCase();
+                if (entityType === 'image') {
+                    const data = entity.getData();
+
+                    return {
+                        element: 'img',
+                        attributes: {
+                            src: data.src,
+                        },
+                        style: {
+                            'width' : '100%'
+                            ,'height': '100%'
+                        },
+                    };
+                }
+            },
+        };
+
+        // html -> state -> html (for add style)
+        const contentState = stateFromHTML(pastedData);      // markdown으로 생각하고 state 구조를 가져오고
+        const contentHtml =  stateToHTML(contentState,options);       // satet를 Html로 변경 (html 변경시 < 테그는  &lt;로 전환됨
+
+
+        // in html
+        this.setEditorState(contentHtml);
+        this.props.onEditorStateChange(contentHtml);
 
     }
 
@@ -69,8 +102,8 @@ export class EditForMarkdown extends Component {
         });
 
         const contentState = this.state.editorState.getCurrentContent();
-        const contentRaw = draftToHtml(convertToRaw(contentState));
-        this.props.onEditorStateChange(contentRaw);
+        const contentHtml = draftToHtml(convertToRaw(contentState));
+        this.props.onEditorStateChange(contentHtml);
     };
 
     onFocusEditer = () => {
@@ -89,7 +122,7 @@ export class EditForMarkdown extends Component {
         return (
             <Editor
                 editorState={editorState}
-                editorStyle={{border: '1px solid Gainsboro',width:340}}
+                editorStyle={{border: '1px solid Gainsboro',width:'100%',wordBreak:'break-all'}}
                 // wrapperClassName="demo-wrapper"
                 // editorClassName="demo-editor"
                 onEditorStateChange={this.onEditorStateChange}
@@ -124,5 +157,5 @@ EditForMarkdown.propTypes = {
 };
 
 EditForMarkdown.defaultProps ={
-    initRowText : null,
+    initRowText :'',
 }

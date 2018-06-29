@@ -18,17 +18,18 @@ class GoogleMap extends React.Component {
     render() {
 
 
-    return !this.props.isGeolocationAvailable
-        ? <MapWithASearchBox/>
-        : !this.props.isGeolocationEnabled
-            ? <MapWithASearchBox/>
-            : this.props.coords
-                ? <MapWithASearchBox lat={this.props.coords.latitude}  lng={this.props.coords.longitude} returnUrl={this.state.returnUrl} />
-                :   <Grid container alignItems='center' style={{height:'300px'}}>
-                    <Grid item xs={12} >
-                        <CircularProgress   size={100} />
+        return !this.props.isGeolocationAvailable
+            ? <MapWithASearchBox returnUrl={this.state.returnUrl}/>
+            : !this.props.isGeolocationEnabled
+                ? <MapWithASearchBox returnUrl={this.state.returnUrl}/>
+                : this.props.coords
+                    ? <MapWithASearchBox lat={this.props.coords.latitude} lng={this.props.coords.longitude}
+                                         returnUrl={this.state.returnUrl}/>
+                    : <Grid container alignItems='center' style={{height: '300px'}}>
+                        <Grid item xs={12}>
+                            <CircularProgress size={100}/>
+                        </Grid>
                     </Grid>
-                </Grid>
 }}
 
 GoogleMap.propTypes = {};

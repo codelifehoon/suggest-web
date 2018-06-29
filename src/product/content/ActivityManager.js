@@ -62,7 +62,7 @@ class ActivityManager extends React.Component {
 
         const reqUrl = Config.API_URL + '/Content/V1/findContentActivityList/' + activityCode
             + '?page=' + page
-            + '&size=3';
+            + '&size=1000';
 
         axios.get(reqUrl
             ,{withCredentials: true, headers: {'Content-Type': 'application/json'}})

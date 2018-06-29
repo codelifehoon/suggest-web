@@ -5,8 +5,8 @@ import './App.css';
 import TemplateManager from "./product/CommonComponet/TemplateManager";
 // import GoogleMap from "./product/content/GoogleMap";
 import Async from 'react-code-splitting'
+import GoogleMap from "./product/content/GoogleMap";
 
-const GoogleMap = () => <Async load={import('./product/content/GoogleMap')} />
 
 
 class App extends Component {

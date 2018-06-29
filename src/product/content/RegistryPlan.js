@@ -210,7 +210,7 @@ class RegistryPlan extends React.Component {
         event.preventDefault();
     };
 
-    onLinkClick = () => {
+    onChoiceMapClick = () => {
 
         let stateStr = JSON.stringify(this.state);
         let returnUrl = encodeURIComponent('/registryPlan');
@@ -375,14 +375,14 @@ class RegistryPlan extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={3}>
-                            <Typography variant="button" gutterBottom onClick={this.onLinkClick}>
+                            <Typography variant="button" gutterBottom onClick={this.onChoiceMapClick}>
                                 지도선택
                             </Typography>
                     </Grid>
 
                     <Grid item xs={1}/>
 
-                    <Grid item xs={11}>
+                    <Grid item xs={11} style={{textAlign:'left'}}>
                         {/*초기 bind시 null 값이로 하면  warning 발생해서 ''으로 조치*/}
                         <TextField
                             id="eventStart"
@@ -393,11 +393,12 @@ class RegistryPlan extends React.Component {
                             className={classes.textField}
                             InputLabelProps={{shrink: true,}}
                             onChange={this.handleDefaultChange}
+                            style={{width: '90%'}}
                         />
                     </Grid>
 
                     <Grid item xs={1}/>
-                    <Grid item xs={11}>
+                    <Grid item xs={11} style={{textAlign:'left'}}>
                         <TextField
                             id="eventEnd"
                             label="종료일"
@@ -407,6 +408,7 @@ class RegistryPlan extends React.Component {
                             className={classes.textField}
                             InputLabelProps={{shrink: true,}}
                             onChange={this.handleDefaultChange}
+                            style={{width: '90%'}}
                         />
                     </Grid>
 {/*
