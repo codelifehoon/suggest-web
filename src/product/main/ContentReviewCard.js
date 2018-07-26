@@ -42,7 +42,7 @@ const styles = theme => ({
         transform: 'rotate(180deg)',
     },
     avatar: {
-        backgroundColor: red[500],
+        // backgroundColor: red[500],
     },
 
 });
@@ -253,13 +253,12 @@ class ContentReviewCard extends React.Component {
                         // }
                         title={title}
                         subheader={eventPeriod}
-                        onClick={this.onCommentListBtn}
                     />
 
-                    { refBy !== 'ContentMain' && thumbnailImages.length > 0 ? <ImageGallery items={thumbnailImages} lazyLoad={true} showPlayButton={false} showThumbnail={false}  />
+                    { refBy !== 'ContentMain' && thumbnailImages.length > 0 ? <ImageGallery items={thumbnailImages} lazyLoad={true} showPlayButton={false} showThumbnail={false}  onClick={this.onCommentListBtn}/>
                         : '' }
 
-                    { refBy !== 'ContentMain' ? <CardContent style={{wordBreak:'break-all'}}>{shortEventDesc} </CardContent>
+                    { refBy !== 'ContentMain' ? <CardContent style={{wordBreak:'break-all'}}  onClick={this.handleExpandClick}>{shortEventDesc} </CardContent>
                         : ''
                     }
 

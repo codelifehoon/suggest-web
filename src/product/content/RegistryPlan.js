@@ -12,6 +12,7 @@ import axios from "axios/index";
 import DialogForNoti from "../CommonComponet/DialogForNoti";
 import {getUrlParam} from "../util/CommonUtils";
 import * as Config from "../util/Config";
+import {TextValidator, ValidatorForm} from "react-material-ui-form-validator";
 
 
 
@@ -60,23 +61,44 @@ class RegistryPlan extends React.Component {
 
 
     componentDidMount(){
-
         const cachedHits = sessionStorage.getItem('planStorage');
 
         if (!cachedHits && getUrlParam(this.props,'eventContentNo')) {
             this.initEditData(getUrlParam(this.props,'eventContentNo'));
-            return;
+        }
+        else {
+
+            if (cachedHits) {
+                let cacheObj = JSON.parse(cachedHits);
+                // cacheObj.eventDesc = '';        // 화면전환 후 상품상세는 초기화 한다.( 복구시 잘안되어서.. 지금은 복구 없는 상황이 좋을듯..)
+                this.setState(cacheObj);
+                // session Storage 갱신flag변경
+            }
+
+            this.setState({storageFlag: true, submitFlah: false, dialogForNoti: null});
+            this.initFormattedAddress();
         }
 
-        if (cachedHits) {
-            let cacheObj = JSON.parse(cachedHits);
-            // cacheObj.eventDesc = '';        // 화면전환 후 상품상세는 초기화 한다.( 복구시 잘안되어서.. 지금은 복구 없는 상황이 좋을듯..)
-            this.setState(cacheObj);
-            // session Storage 갱신flag변경
-        }
+        ValidatorForm.addValidationRule('checkEventEnd', (value) => {
 
-        this.setState({storageFlag:true,submitFlah:false,dialogForNoti:null});
-        this.initFormattedAddress();
+            const eventStart = new Date(this.state.eventStart);
+            const eventEnd = new Date(this.state.eventEnd);
+            const yesterDay = new Date();
+            yesterDay.setDate(yesterDay.getDate() -1);
+
+            console.log(eventStart);
+            console.log(yesterDay);
+
+            // eventEnd는 eventStart보다 커야한다.
+            if (eventEnd < eventStart ) return false;
+
+            // eventEnd는 등록일 -1 보다 커야한다.
+            if (eventEnd <= yesterDay ) return false;
+
+            return true;
+
+
+        });
 
 
 
@@ -128,7 +150,6 @@ class RegistryPlan extends React.Component {
 
             GoogleAPI.getFormattedAddressFromLocation(latLng)
                 .then(formattedAddress => {
-                    let a = formattedAddress;
                     this.setState({eventAddress:formattedAddress});
                 })
                 .catch(e => {});
@@ -233,6 +254,8 @@ class RegistryPlan extends React.Component {
         this.setState({eventDesc:contentRaw});
     };
 
+
+
     onSubmitClick = () =>
     {
 
@@ -277,10 +300,28 @@ class RegistryPlan extends React.Component {
                     ,{withCredentials: true, headers: {'Content-Type': 'application/json'}}
             )
             .then(res =>{
+                sessionStorage.setItem('contentReload', true);
                 this.setState({submitFlah : false});
                 this.editSuccessDlg(res);
 
             }).catch(err => { console.error('>>>> :' + err);  this.setState({submitFlah : false}); this.addFailDlg(err); });
+    }
+
+
+    deleteContent = ()=>{
+        sessionStorage.removeItem('planStorage');
+
+        axios.patch(Config.API_URL + '/Content/V1/updateContentStat/' + this.state.contentNo + '/S4'
+                        ,{}
+                        ,{withCredentials: true, headers: {'Content-Type': 'application/json'}}
+                    )
+                    .then(res =>{
+                        // 컨텐츠 수정이 있었다면 메인으로 이동시 전체 리스트를 다시 읽어줄수 있도록한다.
+                        sessionStorage.setItem('contentReload', true);
+                        this.props.history.push('/');
+
+                    }).catch(err => { console.error('>>>> :' + err);  this.setState({submitFlah : false}); this.addFailDlg(err); });
+
     }
 
     editSuccessDlg = (res) => {
@@ -323,7 +364,6 @@ class RegistryPlan extends React.Component {
 
 
 
-
     addFailDlg = (err) => {
         this.setState({dialogForNoti : null });
         this.setState({dialogForNoti : this.addFailDlgGen(err) });
@@ -342,23 +382,28 @@ class RegistryPlan extends React.Component {
 
         return (
             <div>
-
-
+                <ValidatorForm
+                    ref="form"
+                    onSubmit={this.onSubmitClick}
+                    // onError={errors => console.log(errors)}
+                >
                 <Grid container>
                     <Grid item xs={12}/><Grid item xs={12}/><Grid item xs={12}/><Grid item xs={12}/>
                     <Grid item xs={1}/>
                     <Grid item xs={11}>
-                        <TextField
-                            // ref={(ref) => { this.title = ref; }}
-                            // autoFocus={true}
+                        <TextValidator
                             id="title"
+                            name="title"
                             label="(필수)입력 해주세요."
                             className={classes.textField}
-                            helperText="입력 "
                             margin="normal"
                             value={this.state.title}
+                            validators={['required']}
+                            errorMessages={[]}
                             onChange={this.handleDefaultChange}
                         />
+
+
                     </Grid>
 
 
@@ -379,14 +424,14 @@ class RegistryPlan extends React.Component {
                                 지도선택
                             </Typography>
                     </Grid>
-
+                    <Grid item xs={12}><br/></Grid>
                     <Grid item xs={1}/>
-
                     <Grid item xs={11} style={{textAlign:'left'}}>
                         {/*초기 bind시 null 값이로 하면  warning 발생해서 ''으로 조치*/}
-                        <TextField
+                        <TextValidator
                             id="eventStart"
-                            label="시작일"
+                            name="eventStart"
+                            label="시작일(필수)"
                             type="date"
                             // defaultValue={this.state.eventStart}
                             value={this.state.eventStart}
@@ -394,14 +439,17 @@ class RegistryPlan extends React.Component {
                             InputLabelProps={{shrink: true,}}
                             onChange={this.handleDefaultChange}
                             style={{width: '90%'}}
+                            validators={['required']}
+                            errorMessages={['']}
                         />
                     </Grid>
-
+                    <Grid item xs={12}><br/></Grid>
                     <Grid item xs={1}/>
                     <Grid item xs={11} style={{textAlign:'left'}}>
-                        <TextField
+                        <TextValidator
                             id="eventEnd"
-                            label="종료일"
+                            name="eventEnd"
+                            label="종료일(필수)"
                             type="date"
                             // defaultValue={this.state.eventEnd}
                             value={this.state.eventEnd}
@@ -409,6 +457,8 @@ class RegistryPlan extends React.Component {
                             InputLabelProps={{shrink: true,}}
                             onChange={this.handleDefaultChange}
                             style={{width: '90%'}}
+                            validators={['required','checkEventEnd']}
+                            errorMessages={['','종료일은 시작일,당일보다는 커야 합니다.']}
                         />
                     </Grid>
 {/*
@@ -493,9 +543,13 @@ class RegistryPlan extends React.Component {
 
                     <Grid container>
                         <Grid item xs={12}>
-                            <Button className={classes.button} variant='raised' color="primary" onClick={this.onSubmitClick}>
+                            <Button className={classes.button} variant='outlined' color="primary" type='submit'>
                                 {editable ? '수정하기' :'등록하기'}
                             </Button>
+
+                            {editable ? <Button className={classes.button} variant='outlined' color="secondary" onClick={this.deleteContent}>삭제</Button>
+                                : ''
+                            }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -504,7 +558,7 @@ class RegistryPlan extends React.Component {
                 {dialogForNoti}
 
                 {/*<input ref={input => { this.testNameInput = input; }} />*/}
-
+                </ValidatorForm>
             </div>
         );
 }

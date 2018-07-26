@@ -33,17 +33,32 @@ export const getWebCertInfoCookie = () =>{
 
 
 
-export const  doIntergateSearch = (notiIntergrateSearch,period,searchSentence,latitude,longitude,page,prevList,callBack) =>{
+export const  doIntergateSearch = (notiIntergrateSearch,period,searchSentence,latitude,longitude,locationDistance,page,prevList,callBack) =>{
 
-    if (period !== '모든날짜')  period = dateformat(period,'yyyy-mm-dd');
+
+    if (period !== '모든날짜')  {period = dateformat(period,'yyyy-mm-dd');}
+    else  {period = dateformat(new Date(),'yyyy-mm-dd');}
+
     const reqUrl = Config.API_URL + '/Content/V1/findEventList'
         + '/' + searchSentence
         + '/' + period
         + '/' + latitude
         + '/' + longitude
+        + '/' + locationDistance
         + '?page=' + page;
 
-    console.debug(reqUrl);
+
+    // new search init
+    if ( !prevList){
+        let notiData ={ period : period,
+            searchSentence : searchSentence,
+            latitude : latitude,
+            longitude : longitude,
+            locationDistance : locationDistance,
+            page: page,
+            responseData : null };
+        notiIntergrateSearch(notiData);
+    }
 
     axios.get(reqUrl
         ,{withCredentials: true, headers: {'Content-Type': 'application/json'}})
@@ -51,7 +66,6 @@ export const  doIntergateSearch = (notiIntergrateSearch,period,searchSentence,la
             let responseData =  res.data;
 
             if (prevList) {
-
                 let nextList =  responseData.content;
                 let mergeList = prevList.concat(nextList);
 
@@ -62,6 +76,7 @@ export const  doIntergateSearch = (notiIntergrateSearch,period,searchSentence,la
                             searchSentence : searchSentence,
                             latitude : latitude,
                             longitude : longitude,
+                            locationDistance : locationDistance,
                             page: page,
                             responseData : responseData };
 

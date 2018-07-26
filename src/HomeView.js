@@ -54,6 +54,12 @@ const styles = theme => ({
         marginLeft: 12,
         marginRight: 0,
     },
+    noMarginButton: {
+        margin: theme.spacing.unit,
+        marginLeft: 0,
+        marginRight: 0,
+    },
+
     hide: {
         display: 'none',
     },
@@ -223,7 +229,7 @@ class HomeView extends React.Component {
                             </Grid>
                             <Grid item xs={2} >
                                 {
-                                    isLogin ? <Button variant="flat" color="inherit" aria-label="edit" className={classes.button} onClick={()=>{this.props.history.push('/registryPlan');}}>글쓰기</Button>
+                                    isLogin ? <Button variant="flat" color="inherit" aria-label="edit" className={classes.noMarginButton} onClick={()=>{this.props.history.push('/registryPlan');}}>쓰기</Button>
                                         : ''
                                 }
                             </Grid>

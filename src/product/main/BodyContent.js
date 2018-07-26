@@ -10,7 +10,8 @@ import {doIntergateSearch, getWebCertInfoCookie, isNextPage} from "../util/Commo
 import green from '@material-ui/core/colors/green';
 import classNames from 'classnames';
 import NoSearchResultsCard from "./NoSearchResultsCard";
-;
+import { browserHistory } from 'react-router';
+
 
 const styles = theme => ({
     alignCenter : {
@@ -69,11 +70,13 @@ class BodyContent extends React.Component {
 
 
     componentDidMount(){
+
+
         this.setState({webCertInfo : getWebCertInfoCookie()});
     }
 
 
-    createContentList= (responseData) => {
+    getContentList= (responseData) => {
 
         const data = responseData;
         let jsonList = [];
@@ -113,6 +116,7 @@ class BodyContent extends React.Component {
                 ,intergratSearchResult.searchSentence
                 ,intergratSearchResult.latitude
                 ,intergratSearchResult.longitude
+                ,intergratSearchResult.locationDistance
                 ,intergratSearchResult.responseData.number + 1
                 ,intergratSearchResult.responseData.content
                 ,()=>{this.setState({moreLoading:false,moreLoadingSuccess:false});});
@@ -132,7 +136,7 @@ class BodyContent extends React.Component {
             [classes.buttonSuccess]: moreLoadingSuccess,
         });
 
-        if (intergratSearchResult.responseData) contentList = this.createContentList(intergratSearchResult.responseData);
+        if (intergratSearchResult.responseData) contentList = this.getContentList(intergratSearchResult.responseData);
         if (isNextPage(intergratSearchResult.responseData) ) moreBtnFlag = true;
 
 
@@ -142,7 +146,7 @@ class BodyContent extends React.Component {
 
                 {/*2 row*/}
                 <Grid item xs={12}>
-                    { contentList == null ? <CircularProgress   size={150} />
+                    { contentList == null   ? <CircularProgress   size={150} />
                         : contentList.length === 0 ? <NoSearchResultsCard/>
                             : <ContentReviewCardList contentList={contentList}/>
                     }

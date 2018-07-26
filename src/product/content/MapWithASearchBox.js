@@ -4,28 +4,32 @@ import _ from 'lodash';
 import { compose, withProps, lifecycle } from 'recompose';
 import {withScriptjs, withGoogleMap, GoogleMap, Marker,InfoWindow} from 'react-google-maps';
 import {SearchBox} from 'react-google-maps/lib/components/places/SearchBox';
-import {Typography} from "@material-ui/core";
 import {withRouter} from "react-router-dom";
 import * as Config from '../util/Config';
-import * as util from "../util/CommonUtils";
-//
-//
-// const _ = require("lodash");
-// const { compose, withProps, lifecycle } = require("recompose");
-// const {
-//     withScriptjs,
-//     withGoogleMap,
-//     GoogleMap,
-//     Marker,
-// } = require("react-google-maps");
-// const { SearchBox } = require("react-google-maps/lib/components/places/SearchBox");
-// const google = window.google;
+import {withStyles} from "@material-ui/core/styles/index";
+import {Button,FormControl,Select} from "@material-ui/core";
+
+
+
+
+const styles = theme => ({
+    button: {
+        margin: theme.spacing.unit,
+    },
+    formControl: {
+        margin: theme.spacing.unit,
+        minWidth: 120,
+    },
+
+
+});
+
 const MapWithASearchBox = compose(
     withProps({
         googleMapURL: "https://maps.googleapis.com/maps/api/js?key=" + Config.GOOGLE_KEY +"&v=3.exp&libraries=geometry,drawing,places",
-        loadingElement: <div style={{ height: '100%' }} />,
-        containerElement: <div style={{ height: `800px` }} />,
-        mapElement: <div style={{ height: '100%' }} />,
+        loadingElement: <div style={{ height: `100%` }} />,
+        containerElement: <div style={{ height: `400px` }} />,
+        mapElement: <div style={{ height: `100%` }} />
     }),
     lifecycle({
 
@@ -40,14 +44,13 @@ const MapWithASearchBox = compose(
             if (this.props.returnUrl) returnUrl=this.props.returnUrl;
 
 
-
-
             this.setState({
                 bounds: null,
                 center: {
                     lat: latDefault, lng: lngDefault
                 },
                 markers: [],
+                distanceOption : '15000',
                 onMapMounted: ref => {
                     refs.map = ref;
                 },
@@ -103,10 +106,23 @@ const MapWithASearchBox = compose(
 
                 },
                 onClickSelectBtn : () =>{
-                    this.props.history.push(this.props.returnUrl + '?latLng=' + JSON.stringify(this.state.markers[0].position));
+                    if (this.state.markers.length != 1) {alert("위치 하나를 선택 해주세요."); return;}
+
+                    // 지정 위치가 변경 되었으니 다시 검색 돌 수 있도록 조치
+                    sessionStorage.setItem('contentReload',true);
+                    this.props.history.push(this.props.returnUrl + '?latLng=' + JSON.stringify(this.state.markers[0].position)
+                                            +'&distance=' + this.state.distanceOption
+                                        );
+                },
+                onClickGoBackBtn : ()=>{
+                    this.props.history.goBack();
                 },
                 onClickCloseBtn : () =>{
                     this.props.history.push(this.props.returnUrl);
+                },
+
+                changeDistanceOption : (name) => event => {
+                    this.setState({ [name]: event.target.value });
                 }
 
             })
@@ -120,7 +136,7 @@ const MapWithASearchBox = compose(
         ref={props.onMapMounted}
         defaultZoom={15}
         center={props.center}
-        onBoundsChanged={props.onBoundsChanged}
+        // onBoundsChanged={props.onBoundsChanged}
         onClick={props.onClickMap}
 
     >
@@ -148,21 +164,37 @@ const MapWithASearchBox = compose(
                 }}
             />
         </SearchBox>
-        {props.markers.map((marker, index) => {
 
+        {props.markers.map((marker, index) => {
          return (
-             <Marker key={index} position={marker.position} >
-                 <InfoWindow  onCloseClick={props.onClickCloseBtn}>
-                     <Typography onClick={props.onClickSelectBtn}>선택해주세요.</Typography >
-                 </InfoWindow>
-             </Marker>
+             <Marker key={index} position={marker.position} />
             )
-        })}
-    </GoogleMap>
+        })}    </GoogleMap>
+
+        {props.returnUrl === '/' ? <FormControl className={props.classes.formControl}>
+                                    <Select native value={props.distanceOption} onChange={props.changeDistanceOption('distanceOption')} inputProps={{id: 'distanceOptionInput',}} >
+                                        <option value={'500'}>10분거리(500M)</option>
+                                        <option value={'5000'}>20분거리(5KM)</option>
+                                        <option value={'15000'}>30분거리(15KM)</option>
+                                        <option value={'30000'}>1시간거리(30KM)</option>
+                                        <option value={'100000'}>2시간거리(100KM)</option>
+                                        <option value={'300000'}>3시간거리(300KM)</option>
+                                    </Select>
+                                </FormControl>
+                                : ''
+        }
+
+        <Button className={props.classes.button} variant='raised' color="primary" onClick={props.onClickSelectBtn}>
+            위치선택하기
+        </Button>
+        <Button className={props.classes.button} variant='outlined' color="primary" onClick={props.onClickGoBackBtn}>
+            돌아가기
+        </Button>
 
     </div>
 );
 
 <MapWithASearchBox />
 
-export  default withRouter((MapWithASearchBox));
+export  default withStyles(styles)(withRouter(MapWithASearchBox));
+

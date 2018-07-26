@@ -10,6 +10,8 @@ import * as Config from "../util/Config";
 const styles = theme => ({
     button: {
         margin: theme.spacing.unit,
+        marginLeft: 0,
+        marginRight: 0,
     },
     input: {
         display: 'none',

@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import match from 'autosuggest-highlight/match';
 import parse from 'autosuggest-highlight/parse';
-import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
-import { MenuItem } from '@material-ui/core/Menu';
-import { withStyles } from '@material-ui/core/styles';
+import { MenuItem,Typography ,Paper,TextField,withStyles} from '@material-ui/core';
+
 
 let suggestions  = null;
 
@@ -110,6 +108,7 @@ const styles = theme => ({
     },
     textField: {
         width: '100%',
+        float: 'right',
     },
 });
 
@@ -118,6 +117,10 @@ class IntegrationAutosuggest extends React.Component {
         value: '',
         suggestions: [],
     };
+
+    componentDidMount(){
+        this.setState({value:this.props.searchTextValue});
+    }
 
     handleSuggestionsFetchRequested = ({ value }) => {
         this.setState({
@@ -133,9 +136,8 @@ class IntegrationAutosuggest extends React.Component {
 
     searchTextChange = (event, { newValue }) => {
         this.setState({value: newValue,});
-        this.props.onChange(this.state.value,false);
+        this.props.onChange(newValue,false);
     };
-
 
     onFormSubmit = (e) => {
         this.props.onChange(this.state.value,true);
@@ -164,13 +166,15 @@ class IntegrationAutosuggest extends React.Component {
                     renderSuggestion={renderSuggestion}
                     keyYouShouldPressToTriggerSubmit={13}   // enter 입력시 summit 호출되도록
                     inputProps={{
-                        autoFocus: true,
+                        autoFocus: false,
                         classes,
                         placeholder: '검색어를 입력 해주세요.',
                         value: this.state.value,
                         onChange: this.searchTextChange,
                     }}
                 />
+
+
                 </form>
             </div>
         );
@@ -181,10 +185,11 @@ IntegrationAutosuggest.propTypes = {
     classes: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     autoCompliteList: PropTypes.array.isRequired
+
 };
 
 IntegrationAutosuggest.defaultProps = {
-    autoCompliteList : []
+    autoCompliteList : [],
 }
 
 export default withStyles(styles)(IntegrationAutosuggest);

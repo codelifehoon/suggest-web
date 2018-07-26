@@ -29,8 +29,6 @@ const styles = theme => ({
         margin: theme.spacing.unit,
         minWidth: 120,
     },
-
-
 });
 
 class ActivityManager extends React.Component {

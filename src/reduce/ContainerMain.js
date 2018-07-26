@@ -27,3 +27,5 @@ let mapStatusToMainBodyContentProps = (state) =>{
 
 export  const SearchBarContainer = connect(mapStatusintergratSearch,mapDispatchIntergratSearch)(SearchBar);
 export  const BodyContentContainer = connect(mapStatusintergratSearch,mapDispatchIntergratSearch)(BodyContent);
+
+
