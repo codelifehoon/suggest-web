@@ -8,6 +8,7 @@ import {withRouter} from "react-router-dom";
 import * as Config from '../util/Config';
 import {withStyles} from "@material-ui/core/styles/index";
 import {Button,FormControl,Select} from "@material-ui/core";
+import {setIntergratSearchReload} from "../util/CommonUtils";
 
 
 
@@ -109,7 +110,7 @@ const MapWithASearchBox = compose(
                     if (this.state.markers.length != 1) {alert("위치 하나를 선택 해주세요."); return;}
 
                     // 지정 위치가 변경 되었으니 다시 검색 돌 수 있도록 조치
-                    sessionStorage.setItem('contentReload',true);
+                    setIntergratSearchReload(true);
                     this.props.history.push(this.props.returnUrl + '?latLng=' + JSON.stringify(this.state.markers[0].position)
                                             +'&distance=' + this.state.distanceOption
                                         );

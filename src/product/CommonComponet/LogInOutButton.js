@@ -64,7 +64,6 @@ class LogInOutButton extends React.Component {
             let locaiton = Config.WEB_URL + this.props.location.pathname;
             if (this.props.location.search) locaiton += this.props.location.search;
 
-
             window.location.href = '/memberLogin?cb='+ encodeURIComponent(locaiton);
         }
 

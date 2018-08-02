@@ -180,6 +180,7 @@ class ContentReviewCard extends React.Component {
             ,eventDescText
             ,eventDescThumbnails
             ,eventLocations
+            ,contentStorages
             ,eventStart
             ,eventEnd
             ,refPath
@@ -229,13 +230,18 @@ class ContentReviewCard extends React.Component {
          // let eventDescHtml = eventDesc;
         // eventDescHtml = unEscapeHTML(eventDescHtml).replace(/\\s\\s/g,'<BR>');
 
-
-
+        const attachImages = contentStorages.map(d => { return {original:d.storageValue};});
         let thumbnailImages = [];
 
 
-        // if (eventDescThumbnails) eventDescThumbnails.map((item) => console.log(item));
-        if (eventDescThumbnails) JSON.parse(eventDescThumbnails).forEach(function(obj) { thumbnailImages.push({original: obj}) });
+        // console.log("#################");
+        // console.log(eventDescThumbnails);
+        // console.log(contentStorages);
+        //
+        if (eventDescThumbnails) JSON.parse(eventDescThumbnails).map(d =>{thumbnailImages.push({original: d});});
+
+        thumbnailImages = thumbnailImages.concat(attachImages);
+
 
         return (
             <div>
@@ -306,10 +312,13 @@ class ContentReviewCard extends React.Component {
 
                         <CardContent style={{wordBreak:'break-all',textAlign:'left'}}>
                             {htmlReactParser(eventDescHtml)}
+                            {refBy === 'ContentMain' ?  attachImages.map(d=>{return <img key={d.original} src={d.original} style={{'maxWidth' : '100%','maxHeight': '100%'}}/>})
+                                                    :''
+                            }
                         </CardContent>
                     </Collapse>
-                </Card>
 
+                </Card>
 
 
                 <Snackbar
@@ -322,6 +331,7 @@ class ContentReviewCard extends React.Component {
 
             </div>
         );
+
 
 
 

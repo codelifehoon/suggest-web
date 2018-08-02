@@ -49,6 +49,7 @@ class ContentMain extends React.Component {
                 contentTemp.contentThumbupNo   =d.contentThumbUp.contentThumbupNo;
                 contentTemp.contentAlarmNo     =d.contentAlarm.contentAlarmNo;
                 contentTemp.contentCommentCnt  =d.commentCnt;
+                contentTemp.contensStorage     =d.contensStorage;
 
                 this.setState({content:contentTemp});
                 this.initCommentList(eventContentNo);

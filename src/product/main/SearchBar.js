@@ -6,7 +6,7 @@ import {withStyles} from "@material-ui/core/styles";
 import PropTypes from 'prop-types';
 import axios from "axios/index";
 import DateClickSelecter from "../CommonComponet/DateClickSelecter";
-import {doIntergateSearch, isNextPage} from "../util/CommonUtils";
+import {doIntergateSearch, getIntergratSearchReload, isNextPage, setIntergratSearchReload} from "../util/CommonUtils";
 import * as Config from "../util/Config";
 import {MyLocation} from "@material-ui/icons";
 import {withRouter} from "react-router-dom";
@@ -47,8 +47,8 @@ class SearchBar extends React.Component{
     initLoading = () =>{
 
         // 기존 내역이 없거나  reload가 true 이면 새로 조회하지 않는다.
-        if (!this.props.intergratSearchResult.responseData  || sessionStorage.getItem('contentReload') ) {
-            sessionStorage.setItem('contentReload', '');
+        if (!this.props.intergratSearchResult.responseData  || getIntergratSearchReload() ) {
+            setIntergratSearchReload('');
 
             // setState 비동기 후 검색 될 수 있도록 검색을 비동기 처리 대상으로 처리하여 state값이 적용된 후 조회 될 수 있도록 한다.
             Promise.resolve().then(() => this.doSearch());
@@ -212,7 +212,7 @@ class SearchBar extends React.Component{
             });
 
             cookies.set('intergratSearch',this.state);
-            sessionStorage.setItem('contentReload',true);
+            setIntergratSearchReload(true);
             this.props.history.push("/");
             // setState 비동기 후 검색 될 수 있도록 검색을 비동기 처리 대상으로 처리하여 state값이 적용된 후 조회 될 수 있도록 한다.
             Promise.resolve().then(()=>this.doSearch());

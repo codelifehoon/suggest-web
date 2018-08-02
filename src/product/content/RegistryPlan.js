@@ -1,7 +1,7 @@
 import React from 'react';
 import {Grid} from "@material-ui/core";
 import {withStyles} from "@material-ui/core/styles";
-import {Button, Chip, Radio, TextField, Typography} from "@material-ui/core";
+import {Button, TextField, Typography,LinearProgress} from "@material-ui/core";
 import dateformat from 'dateformat';
 import {withRouter} from "react-router-dom";
 import * as util  from '../util/CommonUtils';
@@ -13,6 +13,10 @@ import DialogForNoti from "../CommonComponet/DialogForNoti";
 import {getUrlParam} from "../util/CommonUtils";
 import * as Config from "../util/Config";
 import {TextValidator, ValidatorForm} from "react-material-ui-form-validator";
+import FileUploader from "react-firebase-file-uploader";
+import * as firebase from 'firebase';
+import LineImageList from "../CommonComponet/LineImageList";
+import {setIntergratSearchReload} from "../util/CommonUtils";
 
 
 
@@ -53,10 +57,44 @@ class RegistryPlan extends React.Component {
         tags : '',
         chipData: [],
         storageFlag:false,
-        submitFlah:false,
+        submitCheckFlag:false,
         dialogForNoti : null,
         eventLatLng : {lat : null , lng : null },
         editable : false,
+
+        // isUploading: false,
+        // progress: 0,
+        fileuploadCount : 0,
+        fileuploadUrls: []
+
+    };
+
+
+
+    handleUploadStart = () => true;
+    // handleProgress = progress => this.setState({ progress });
+    handleUploadError = error => {
+        // this.setState({ isUploading: false });
+        console.error(error);
+    };
+    handleUploadSuccess = (filename,sec) => {
+
+        this.setState({fileuploadCount : this.state.fileuploadCount + 1});
+
+        const fullPath  = firebase.storage().ref(Config.FIREBASE_STORAGE).child(filename).fullPath;
+        firebase
+            .storage()
+            .ref(Config.FIREBASE_STORAGE)
+            .child(filename)
+            .getDownloadURL()
+            .then(url => {
+                const tile = {key : url
+                    ,tile : filename
+                    ,fullPath : fullPath
+                    ,img : url};
+
+                this.setState({ fileuploadUrls: this.state.fileuploadUrls.concat(tile) })
+            });
     };
 
 
@@ -75,7 +113,7 @@ class RegistryPlan extends React.Component {
                 // session Storage 갱신flag변경
             }
 
-            this.setState({storageFlag: true, submitFlah: false, dialogForNoti: null});
+            this.setState({storageFlag: true, submitCheckFlag: false, dialogForNoti: null});
             this.initFormattedAddress();
         }
 
@@ -85,9 +123,6 @@ class RegistryPlan extends React.Component {
             const eventEnd = new Date(this.state.eventEnd);
             const yesterDay = new Date();
             yesterDay.setDate(yesterDay.getDate() -1);
-
-            console.log(eventStart);
-            console.log(yesterDay);
 
             // eventEnd는 eventStart보다 커야한다.
             if (eventEnd < eventStart ) return false;
@@ -110,7 +145,12 @@ class RegistryPlan extends React.Component {
             .then(res =>{
 
                 const d = res.data.eventContent;
-
+                const fileuploadCount  = d.contentStorages.length;
+                const fileuploadUrls = d.contentStorages.map( d =>{ return {img: d.storageValue
+                                                                    , key: d.contentStorageNo
+                                                                    , tile: d.contentStorageNo
+                                                                    };
+                                                                });
 
 
                 const initJson = {
@@ -124,12 +164,14 @@ class RegistryPlan extends React.Component {
                     tags : d.tags,
                     eventLatLng : {lat : d.eventLocations[0].latitude , lng : d.eventLocations[0].longitude },
                     editable : true,
+                    fileuploadUrls : fileuploadUrls,
+                    fileuploadCount : fileuploadCount
                 };
 
                 this.setState(initJson);
 
                 // editer의 초기값을 설정할때 storageFlag값이  true일때 최초에 한번 하는데 true가 state.eventDesc 보다 먼저 되면 초기값을넘길수 없음.
-                this.setState({storageFlag:true,submitFlah:false,dialogForNoti:null,editable:true,contentNo : d.eventContentNo,});
+                this.setState({storageFlag:true,submitCheckFlag:false,dialogForNoti:null,editable:true,contentNo : d.eventContentNo,});
 
 
             }).catch(err => { console.error('>>>> :' + err);});
@@ -168,12 +210,21 @@ class RegistryPlan extends React.Component {
             this.setState({eventAddress: event.target.value});
         }
         else if (event.target.id === 'eventStart'){
-            if (! this.state.eventEnd) {
+            console.log("##### handleDefaultChange ##### ");
+            console.log(event.target.value);
+
+            // const localEventStart = event.target.value  + " 00:00:00";
+            // const localEventEnd = event.target.value  + " 23:59:59";
+            // console.log(localEventStart);
+            // console.log(localEventEnd);
+
+            if (!this.state.eventEnd) {
+                // this.setState({eventStart: localEventStart,eventEnd: localEventEnd});
                 this.setState({eventStart: event.target.value,eventEnd: event.target.value});
+
             }else{
                 this.setState({eventStart: event.target.value});
             }
-
         }
         else if (event.target.id === 'eventEnd'){
             this.setState({eventEnd: event.target.value});
@@ -254,15 +305,16 @@ class RegistryPlan extends React.Component {
         this.setState({eventDesc:contentRaw});
     };
 
-
-
     onSubmitClick = () =>
     {
 
         // session 정리
         sessionStorage.removeItem('planStorage');
-        if (this.state.submitFlah) { alert('처리중 입니다.'); return;}
+        if (this.state.submitCheckFlag) { alert('처리중 입니다.'); return;}
 
+
+        const eventStart = this.state.eventStart + " 00:00:00";
+        const eventEnd = this.state.eventEnd + " 23:59:59";
 
         const  jsonValue = {
             eventDesc: this.state.eventDesc,
@@ -275,15 +327,15 @@ class RegistryPlan extends React.Component {
                     useYn: 'Y',
                 }
             ],
-            eventStart: new Date(this.state.eventStart),
-            eventEnd: new Date(this.state.eventEnd),
+            eventStart: new Date(eventStart),
+            eventEnd: new Date(eventEnd),
             refPath: '',
             repeatKind: this.state.repeatKind,
             stat: 'S2',
             tags: this.state.tags,
-            title: this.state.title
+            title: this.state.title,
+            contentStorages : this.state.fileuploadUrls.map(d=>{return {storageValue:d.img , fullPath : d.fullPath};})
         };
-
 
 
         let reqUrl = '';
@@ -300,11 +352,11 @@ class RegistryPlan extends React.Component {
                     ,{withCredentials: true, headers: {'Content-Type': 'application/json'}}
             )
             .then(res =>{
-                sessionStorage.setItem('contentReload', true);
-                this.setState({submitFlah : false});
+                setIntergratSearchReload(true);
+                this.setState({submitCheckFlag : false});
                 this.editSuccessDlg(res);
 
-            }).catch(err => { console.error('>>>> :' + err);  this.setState({submitFlah : false}); this.addFailDlg(err); });
+            }).catch(err => { console.error('>>>> :' + err);  this.setState({submitCheckFlag : false}); this.addFailDlg(err); });
     }
 
 
@@ -317,10 +369,10 @@ class RegistryPlan extends React.Component {
                     )
                     .then(res =>{
                         // 컨텐츠 수정이 있었다면 메인으로 이동시 전체 리스트를 다시 읽어줄수 있도록한다.
-                        sessionStorage.setItem('contentReload', true);
+                        setIntergratSearchReload(true);
                         this.props.history.push('/');
 
-                    }).catch(err => { console.error('>>>> :' + err);  this.setState({submitFlah : false}); this.addFailDlg(err); });
+                    }).catch(err => { console.error('>>>> :' + err);  this.setState({submitCheckFlag : false}); this.addFailDlg(err); });
 
     }
 
@@ -346,14 +398,18 @@ class RegistryPlan extends React.Component {
             title:'',
             eventAddress:'',
             eventLatLng:'',
-            eventStart:  null, //공백으로 했을때 선택 값 변경이 안되어서..
-            eventEnd:  null,//dateformat(new Date(),'yyyy-mm-dd')+'T18:00',
+            eventStart:  '', //공백으로 했을때 선택 값 변경이 안되어서..
+            eventEnd:  '',//dateformat(new Date(),'yyyy-mm-dd')+'T18:00',
             eventDesc :'#입력해주세요#',
             repeatKind : 'NONE',
             chipData: [],
             storageFlag:true,
-            submitFlah:false,
-            dialogForNoti : null
+            submitCheckFlag:false,
+            dialogForNoti : null,
+            eventLatLng : {lat : null , lng : null },
+
+            fileuploadCount : 0,
+            fileuploadUrls: []
             });
 
         // 실시간 처리시 dlg 사라지기전의 action이어서 적용된것이 다리얼로그 사라질때 빠짐
@@ -373,12 +429,25 @@ class RegistryPlan extends React.Component {
         return (<DialogForNoti  dialogTitle={'등록오류'} dialogMessage={err.toString()} />);
     }
 
+    deleteImageList = (data) =>{
+        const newFileuploadUrls =  this.state.fileuploadUrls.filter( (d) => d.key !== data.key);
+        const fileuploadCount = --this.state.fileuploadCount;
+
+        // console.log('###################');
+        // console.log(newFileuploadUrls);
+        // console.log(this.state.fileuploadCount);
+
+        this.setState({fileuploadUrls: newFileuploadUrls
+            ,fileuploadCount : fileuploadCount
+            });
+    }
+
 
     render() {
 
 
     const  {classes} = this.props;
-    const  {storageFlag,dialogForNoti,editable} = this.state;
+    const  {storageFlag,dialogForNoti,editable,fileuploadUrls} = this.state;
 
         return (
             <div>
@@ -509,10 +578,11 @@ class RegistryPlan extends React.Component {
                     </Grid>
 
                     <Grid item xs={1}/>
+{/*
                     <Grid item xs={11}>
                         <TextField
                             id="with-searchTagInput"
-                            label="검색용 테스 입력 해주세요(#검색어)"
+                            label="검색용 테그 입력 해주세요(#검색어)"
                             placeholder="여러건 추가 가능 합니다.(최대10건)"
                             className={classes.textField}
                             margin="normal"
@@ -521,7 +591,7 @@ class RegistryPlan extends React.Component {
                             onChange={this.searchTagChange}
                         />
                     </Grid>
-{/*
+
 
                     <Grid container>
                         <Grid item xs={1} />
@@ -538,7 +608,21 @@ class RegistryPlan extends React.Component {
                             })}
                         </Grid>
                     </Grid>
+
+                    {this.state.isUploading && <p>Progress: {this.state.progress}</p>}
+
+                    <div style={{flexGrow:1}}>
+                        <LinearProgress variant="determinate" value={this.state.progress} />
+                    </div>
 */}
+
+
+
+                    <Grid container>
+                        <Grid item xs={12}>
+                            {fileuploadUrls.length > 0 ? <LineImageList tileList={fileuploadUrls} onDelete={this.deleteImageList}/> : ''}
+                        </Grid>
+                    </Grid>
 
 
                     <Grid container>
@@ -549,6 +633,24 @@ class RegistryPlan extends React.Component {
 
                             {editable ? <Button className={classes.button} variant='outlined' color="secondary" onClick={this.deleteContent}>삭제</Button>
                                 : ''
+                            }
+
+                            { this.state.fileuploadCount < 5 ?
+                                <label style={{backgroundColor: 'steelblue', color: 'white', padding: 9, borderRadius: 4, pointer: 'cursor'}}>
+                                    파일등록
+                                    <FileUploader
+                                        accept="image/*"
+                                        name="fileupload"
+                                        randomizeFilename
+                                        onUploadStart={this.handleUploadStart}
+                                        storageRef={firebase.storage().ref(Config.FIREBASE_STORAGE)}
+                                        onUploadError={this.handleUploadError}
+                                        onUploadSuccess={this.handleUploadSuccess}
+                                        hidden
+                                        multiple
+                                    />
+                                </label>
+                                    : ''
                             }
                         </Grid>
                     </Grid>

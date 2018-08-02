@@ -108,4 +108,6 @@ export const unEscapeHTML = (html) => {
 }
 
 
+export const setIntergratSearchReload = (flag) => { sessionStorage.setItem('contentReload', flag); }
+export const getIntergratSearchReload = () => { return sessionStorage.getItem('contentReload'); }
 
