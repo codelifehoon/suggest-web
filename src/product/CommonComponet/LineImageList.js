@@ -62,10 +62,10 @@ class LineImageList extends  React.Component{
         <div className={classes.root}>
             <GridList className={classes.gridList} cols={5}>
                 {tileList.map(tile => (
-                    <GridListTile key={tile.img}>
+                    <GridListTile key={tile.img} style={{'width':'80px'}}>
                         <img src={tile.img} alt={tile.title} />
                         <GridListTileBar
-                            title={tile.title}
+                            // title={tile.title}
                             classes={{
                                 root: classes.titleBar,
                                 title: classes.title,

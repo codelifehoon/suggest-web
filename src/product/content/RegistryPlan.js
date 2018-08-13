@@ -79,6 +79,7 @@ class RegistryPlan extends React.Component {
     };
     handleUploadSuccess = (filename,sec) => {
 
+        console.log(sec);
         this.setState({fileuploadCount : this.state.fileuploadCount + 1});
 
         const fullPath  = firebase.storage().ref(Config.FIREBASE_STORAGE).child(filename).fullPath;
@@ -620,7 +621,7 @@ class RegistryPlan extends React.Component {
 
                     <Grid container>
                         <Grid item xs={12}>
-                            {fileuploadUrls.length > 0 ? <LineImageList tileList={fileuploadUrls} onDelete={this.deleteImageList}/> : ''}
+                            {fileuploadUrls.length > 0 ? <LineImageList style={{'maxWidth':'100%'}} tileList={fileuploadUrls} onDelete={this.deleteImageList}/> : ''}
                         </Grid>
                     </Grid>
 

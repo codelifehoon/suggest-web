@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "suggest-life"
+    "default": "suggest-life",
+    "real": "suggest-life-36db0"
   }
 }

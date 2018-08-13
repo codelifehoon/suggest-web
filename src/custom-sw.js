@@ -3,9 +3,9 @@ self.addEventListener('push', (event) => {
     console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
 
     let options = JSON.parse(event.data.text());
-    options.data =  options.body ;                        // notificationclick »ç¿ëÀ» À§ÇØ¼­ orginal body Á¤º¸¿¡¼­ º¹»ç
-    options.body = JSON.parse(options.body).message;    //server¿¡¼­ option°ú µ¿ÀÏÇÑ formatÀ¸·Î Àü¼Û
-                                                        // ´Ü  body´Â Ãß°¡ Á¤º¸¸¦ Àü´Þ ÇÏ±â À§ÇØ¼­ jsonÇüÅÂ·Î message,link·Î Àü´Þ
+    options.data =  options.body ;                        // notificationclick ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ orginal body ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    options.body = JSON.parse(options.body).message;    //serverï¿½ï¿½ï¿½ï¿½ optionï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ formatï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+                                                        // ï¿½ï¿½  bodyï¿½ï¿½ ï¿½ß°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ jsonï¿½ï¿½ï¿½Â·ï¿½ message,linkï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 
     event.waitUntil(self.registration.showNotification(options.title, options));

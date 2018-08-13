@@ -7,18 +7,12 @@ import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import App from './App';
 import * as  firebase from 'firebase'
+import * as Config from "./product/util/Config";
 
 
 if (!firebase.apps.length) {
 
-    firebase.initializeApp({
-        apiKey: "AIzaSyCalL1N8NvByA-gVG_6bfCnwgyBZXeNNiA",
-        authDomain: "suggest-life.firebaseapp.com",
-        databaseURL: "https://suggest-life.firebaseio.com",
-        projectId: "suggest-life",
-        storageBucket: "suggest-life.appspot.com",
-        messagingSenderId: "130195882344"
-    });
+    firebase.initializeApp(Config.FIREBASE_CONFIG);
 
 }
 
@@ -32,6 +26,7 @@ ReactDOM.render(
     </Provider>,
     appElement
 );
+
 
 
 //ReactDOM.render(<App />, document.getElementById('root'));
