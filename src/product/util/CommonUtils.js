@@ -31,13 +31,11 @@ export const getWebCertInfoCookie = () =>{
 
 
 
-
-
 export const  doIntergateSearch = (notiIntergrateSearch,period,searchSentence,latitude,longitude,locationDistance,page,prevList,callBack) =>{
 
 
     if (period !== '모든날짜')  {period = dateformat(period,'yyyy-mm-dd');}
-    else  {period = dateformat(new Date(),'yyyy-mm-dd');}
+    else  {period = null;}
 
     const reqUrl = Config.API_URL + '/Content/V1/findEventList'
         + '/' + searchSentence
@@ -45,7 +43,9 @@ export const  doIntergateSearch = (notiIntergrateSearch,period,searchSentence,la
         + '/' + latitude
         + '/' + longitude
         + '/' + locationDistance
-        + '?page=' + page;
+        + '?page=' + page
+        + '&size=20'
+    ;
 
 
     // new search init
