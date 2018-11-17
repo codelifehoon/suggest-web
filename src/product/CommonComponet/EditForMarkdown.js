@@ -3,7 +3,6 @@ import { EditorState , ContentState ,convertToRaw} from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
-
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import  PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -26,7 +25,8 @@ export class EditForMarkdown extends Component {
 
     componentDidMount(){
 
-        ReactDOM.findDOMNode(this).addEventListener('paste', this.eventHandle,false);
+        // 붙이기 별도처리 안함.
+        // ReactDOM.findDOMNode(this).addEventListener('paste', this.eventHandle,false);
 
         if (this.props.initRowText){
 
@@ -45,12 +45,7 @@ export class EditForMarkdown extends Component {
     }
 
     eventHandle = (e)=>{
-/*         e.preventDefault();
-        console.log('eventHandle:'+ e);
-        const clipboard = e.clipboardData || window.clipboardData;
 
-        if (clipboard){}
-        */
 
         let clipboardData, pastedData;
 
@@ -151,6 +146,7 @@ export class EditForMarkdown extends Component {
     }
 }
 
+/*
 
 EditForMarkdown.propTypes = {
     onEditorStateChange : PropTypes.func.isRequired,
@@ -159,3 +155,4 @@ EditForMarkdown.propTypes = {
 EditForMarkdown.defaultProps ={
     initRowText :'',
 }
+*/

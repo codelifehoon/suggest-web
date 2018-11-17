@@ -17,6 +17,8 @@ import FileUploader from "react-firebase-file-uploader";
 import * as firebase from 'firebase';
 import LineImageList from "../CommonComponet/LineImageList";
 import {setIntergratSearchReload} from "../util/CommonUtils";
+import {green} from "@material-ui/core/colors";
+import {CircularProgress} from "@material-ui/core";
 
 
 
@@ -41,10 +43,19 @@ const styles = theme => ({
     rightIcon: {
         marginLeft: theme.spacing.unit,
     },
+    buttonProgress: {
+        color: green[500],
+        position: 'absolute',
+        marginTop: 15,
+
+    },
 });
 
+let registryplanUploadCount = 0;
 
 class RegistryPlan extends React.Component {
+
+
 
     state = {
         contentNo : null,
@@ -61,26 +72,36 @@ class RegistryPlan extends React.Component {
         dialogForNoti : null,
         eventLatLng : {lat : null , lng : null },
         editable : false,
-
-        // isUploading: false,
-        // progress: 0,
-        fileuploadCount : 0,
+        isUploading: false,
         fileuploadUrls: []
-
     };
 
+    checkIsUploading = (count) =>{
 
+        registryplanUploadCount += count;
+        if (registryplanUploadCount > 0) this.setState({isUploading:true});
+        if (registryplanUploadCount == 0) this.setState({isUploading:false});
 
-    handleUploadStart = () => true;
+        if (registryplanUploadCount > 5) return false;
+        return true;
+    }
+
+    handleUploadStart = () => {
+
+        return this.checkIsUploading(1);
+
+    };
     // handleProgress = progress => this.setState({ progress });
     handleUploadError = error => {
         // this.setState({ isUploading: false });
-        console.error(error);
+        this.checkIsUploading(-1);
     };
     handleUploadSuccess = (filename,sec) => {
 
+        this.checkIsUploading(-1);
+
+        console.log("### handleUploadSuccess:" + registryplanUploadCount);
         console.log(sec);
-        this.setState({fileuploadCount : this.state.fileuploadCount + 1});
 
         const fullPath  = firebase.storage().ref(Config.FIREBASE_STORAGE).child(filename).fullPath;
         firebase
@@ -146,7 +167,6 @@ class RegistryPlan extends React.Component {
             .then(res =>{
 
                 const d = res.data.eventContent;
-                const fileuploadCount  = d.contentStorages.length;
                 const fileuploadUrls = d.contentStorages.map( d =>{ return {img: d.storageValue
                                                                     , key: d.contentStorageNo
                                                                     , tile: d.contentStorageNo
@@ -165,8 +185,7 @@ class RegistryPlan extends React.Component {
                     tags : d.tags,
                     eventLatLng : {lat : d.eventLocations[0].latitude , lng : d.eventLocations[0].longitude },
                     editable : true,
-                    fileuploadUrls : fileuploadUrls,
-                    fileuploadCount : fileuploadCount
+                    fileuploadUrls : fileuploadUrls
                 };
 
                 this.setState(initJson);
@@ -408,8 +427,6 @@ class RegistryPlan extends React.Component {
             submitCheckFlag:false,
             dialogForNoti : null,
             eventLatLng : {lat : null , lng : null },
-
-            fileuploadCount : 0,
             fileuploadUrls: []
             });
 
@@ -432,23 +449,22 @@ class RegistryPlan extends React.Component {
 
     deleteImageList = (data) =>{
         const newFileuploadUrls =  this.state.fileuploadUrls.filter( (d) => d.key !== data.key);
-        const fileuploadCount = --this.state.fileuploadCount;
-
-        // console.log('###################');
-        // console.log(newFileuploadUrls);
-        // console.log(this.state.fileuploadCount);
-
-        this.setState({fileuploadUrls: newFileuploadUrls
-            ,fileuploadCount : fileuploadCount
-            });
+        this.setState({fileuploadUrls: newFileuploadUrls});
     }
 
+
+    showActionButton = () =>
+    {
+        const  {storageFlag,dialogForNoti,editable,fileuploadUrls,isUploading} = this.state;
+
+    }
 
     render() {
 
 
     const  {classes} = this.props;
-    const  {storageFlag,dialogForNoti,editable,fileuploadUrls} = this.state;
+    const  {storageFlag,dialogForNoti,editable,fileuploadUrls,isUploading} = this.state;
+
 
         return (
             <div>
@@ -628,30 +644,34 @@ class RegistryPlan extends React.Component {
 
                     <Grid container>
                         <Grid item xs={12}>
-                            <Button className={classes.button} variant='outlined' color="primary" type='submit'>
-                                {editable ? '수정하기' :'등록하기'}
-                            </Button>
+                            { !isUploading ?
+                                                <div>
+                                                <Button className={classes.button} variant='outlined' color="primary" type='submit'>
+                                                    {editable ? '수정하기' :'등록하기'}
+                                                </Button>
+                                                {editable ? <Button className={classes.button} variant='outlined' color="secondary" onClick={this.deleteContent}>삭제</Button>
+                                                    : ''
+                                                }
 
-                            {editable ? <Button className={classes.button} variant='outlined' color="secondary" onClick={this.deleteContent}>삭제</Button>
-                                : ''
-                            }
-
-                            { this.state.fileuploadCount < 5 ?
-                                <label style={{backgroundColor: 'steelblue', color: 'white', padding: 9, borderRadius: 4, pointer: 'cursor'}}>
-                                    파일등록
-                                    <FileUploader
-                                        accept="image/*"
-                                        name="fileupload"
-                                        randomizeFilename
-                                        onUploadStart={this.handleUploadStart}
-                                        storageRef={firebase.storage().ref(Config.FIREBASE_STORAGE)}
-                                        onUploadError={this.handleUploadError}
-                                        onUploadSuccess={this.handleUploadSuccess}
-                                        hidden
-                                        multiple
-                                    />
-                                </label>
-                                    : ''
+                                                { fileuploadUrls.length < 5 ?
+                                                    <label style={{backgroundColor: 'steelblue', color: 'white', padding: 9, borderRadius: 4, pointer: 'cursor'}}>
+                                                        파일등록
+                                                        <FileUploader
+                                                            accept="image/*"
+                                                            name="fileupload"
+                                                            randomizeFilename
+                                                            onUploadStart={this.handleUploadStart}
+                                                            storageRef={firebase.storage().ref(Config.FIREBASE_STORAGE)}
+                                                            onUploadError={this.handleUploadError}
+                                                            onUploadSuccess={this.handleUploadSuccess}
+                                                            hidden
+                                                            // multiple
+                                                        />
+                                                    </label>
+                                                        : ''
+                                                }
+                                                </div>
+                                : <CircularProgress size={20} className={classes.buttonProgress} />
                             }
                         </Grid>
                     </Grid>
